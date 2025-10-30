@@ -1,0 +1,74 @@
+Step 1: Ensure Puppet Agent is Active
+Check the status of the puppet service:
+
+Bash
+
+sudo systemctl status puppet
+Step 2: Create Module Structure
+Create the directory structure for the new module:
+
+Bash
+
+sudo mkdir -p /etc/puppetlabs/code/environments/production/modules/sample_module/{manifests,files,templates,functions}
+Step 3: Create Class Manifest
+Open the init.pp file in a text editor:
+
+Bash
+
+sudo nano /etc/puppetlabs/code/environments/production/modules/sample_module/manifests/init.pp
+Add the following Puppet code to the file:
+
+Puppet
+
+class sample_module {
+  # Install a package
+  package { 'cowsay':
+    ensure => installed,
+  }
+
+  # Create a file
+  file {'/tmp/hello.txt':
+    ensure => file,
+    content => "Hello from Puppet!",
+  }
+
+  # Ensure a service is running
+  service { 'ssh':
+    ensure => running,
+  }
+}
+Step 4: Create Custom Function
+Open the custom_message.pp file in a text editor:
+
+Bash
+
+sudo nano /etc/puppetlabs/code/environments/production/modules/sample_module/functions/custom_message.pp
+Add the following Puppet code to the file:
+
+Puppet
+
+function sample_module::custom_message(String $msg) {
+  notice("Custom Message: ${msg}")
+}
+Step 5: Apply the Module
+Apply the configuration using puppet apply:
+
+Bash
+
+sudo /opt/puppetlabs/bin/puppet apply -e "include sample_module"
+Step 6: Verify Changes
+Check if the cowsay package was installed:
+
+Bash
+
+dpkg -1 | grep cowsay
+Check the content of the created file:
+
+Bash
+
+cat /tmp/hello.txt
+Check the status of the ssh service:
+
+Bash
+
+systemctl status ssh
