@@ -1,0 +1,91 @@
+Application Files
+
+index.html 
+
+
+<!DOCTYPE html>
+<html>
+<head><title>K8s HTML Page</title></head>
+<body>
+<h1>Hello from Kubernetes on Linux!</h1>
+<p>Served by Nginx inside a container.</p>
+</body>
+</html>
+
+Dockerfile 
+
+
+FROM nginx:alpine
+COPY index.html /usr/share/nginx/html/index.html
+
+Deployment.yaml 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: html-page
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: html-page
+  template:
+    metadata:
+      labels:
+        app: html-page
+    spec:
+      containers:
+      - name: nginx
+        image: html-k8s-page:v1
+        ports:
+        - containerPort: 80
+
+Service.yaml 
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: html-page-service
+spec:
+  selector:
+    app: html-page
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
+
+
+Shell Commands
+Bash
+
+# 1. Verify Docker
+docker run hello-world 
+
+# 2. Verify Minikube
+minikube version 
+
+# 3. Verify kubectl
+kubectl version --client 
+
+# 4. Start Minikube
+minikube start --driver-docker
+minikube status [cite: 45]
+
+# 5. Create project directory
+mkdir html-k8s && cd html-k8s 
+
+# 6. Build Docker image
+eval $(minikube docker-env) 
+docker build -t html-k8s-page:v1 .
+
+# 8. Deploy the application
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml 
+kubectl get pods 
+kubectl get svc
+
+# 9. Access the application
+minikube service html-page-service [cite: 207]
+# (or get IP and port separately)
+minikube ip [cite: 213]
