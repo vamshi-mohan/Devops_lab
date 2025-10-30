@@ -1,0 +1,51 @@
+# Go to your home directory and start fresh
+cd ~
+rm -rf myapp
+
+# 1. Create project directory and move into it
+echo "--- 1. Creating directory 'myapp' ---"
+mkdir myapp
+cd myapp
+
+# 2. Create the Python application file
+echo "--- 2. Creating app.py ---"
+cat <<EOF > app.py
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Hello from Dockerized Flask App!"
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)
+EOF
+
+# 3. Create the requirements file
+echo "--- 3. Creating requirements.txt ---"
+cat <<EOF > requirements.txt
+flask
+EOF
+
+# 4. Create the Dockerfile
+echo "--- 4. Creating Dockerfile ---"
+cat <<EOF > Dockerfile
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.txt requirements.txt
+COPY app.py app.py
+RUN pip install --no-cache-dir -r requirements.txt
+EXPOSE 5000
+CMD ["python", "app.py"]
+EOF
+
+echo "--- 5. All files created. Building Docker image... ---"
+
+# 6. Build the Docker image
+sudo docker build -t flask-docker-sample .
+
+echo "--- 6. Build complete. Running container... ---"
+
+# 7. Run the container
+sudo docker run -p 5000:5000 flask-docker-sample
