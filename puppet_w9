@@ -1,0 +1,67 @@
+Step 1: Install Puppet Repository
+Download the Puppet 8 repository package:
+
+Bash
+
+wget https://apt.puppet.com/puppet8-release-focal.deb
+Install the downloaded package:
+
+Bash
+
+sudo dpkg -i puppet8-release-focal.deb
+Update the system's package lists:
+
+Bash
+
+sudo apt update
+Step 2: Install Puppet Server
+Install the puppetserver package:
+
+Bash
+
+sudo apt install puppetserver -y
+Step 3: Start and Enable Puppet Server
+Start the Puppet Server service:
+
+Bash
+
+sudo systemctl start puppetserver
+Enable the service to start on boot:
+
+Bash
+
+sudo systemctl enable puppetserver
+Check the status of the service:
+
+Bash
+
+sudo systemctl status puppetserver
+Step 4: Configure Puppet Agent
+The document shows editing the puppet.conf file, likely using a command like sudo nano /etc/puppetlabs/puppet/puppet.conf.
+
+The following content is shown being set in the [main] section of the file:
+
+Ini, TOML
+
+[main]
+certname = puppet.localdomain
+server = puppet.localdomain
+environment = production
+runinterval = 1h
+Step 5: Start and Enable Puppet Agent
+Start the Puppet Agent service:
+
+Bash
+
+sudo systemctl start puppet
+Enable the Puppet Agent service:
+
+Bash
+
+sudo systemctl enable puppet
+Step 6: Test Puppet Agent Communication
+Manually trigger a configuration pull from the agent:
+
+Bash
+
+sudo /opt/puppetlabs/bin/puppet agent --test
