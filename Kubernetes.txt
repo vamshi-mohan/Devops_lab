@@ -1,0 +1,238 @@
+### **Description:**
+
+**Kubernetes (K8s)** is an open-source **container orchestration platform** that automates the deployment, scaling, and management of containerized applications. It groups containers into **pods**, manages them across a cluster of nodes, and handles tasks like **load balancing, self-healing, service discovery**, and **resource allocation** to ensure high availability and reliability.
+
+Originally developed by **Google**, Kubernetes is now a widely adopted standard for managing **cloud-native applications** efficiently in production environments.
+
+---
+
+### **Procedure:**
+
+#### **Step 1: Install Docker**
+
+1. Update system packages and install Docker:
+
+   ```bash
+   sudo apt update
+   sudo apt install docker.io -y
+   ```
+2. Start Docker and enable it on boot:
+
+   ```bash
+   sudo systemctl start docker
+   sudo systemctl enable docker
+   ```
+3. Add your user to the Docker group:
+
+   ```bash
+   sudo usermod -aG docker $USER
+   ```
+4. Verify installation:
+
+   ```bash
+   docker run hello-world
+   ```
+
+---
+
+#### **Step 2: Install Minikube**
+
+1. Download the Minikube binary:
+
+   ```bash
+   curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+   ```
+2. Install and verify:
+
+   ```bash
+   sudo install minikube-linux-amd64 /usr/local/bin/minikube
+   minikube version
+   ```
+
+---
+
+#### **Step 3: Install kubectl**
+
+1. Download the `kubectl` binary:
+
+   ```bash
+   curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+   ```
+2. Make it executable and move it:
+
+   ```bash
+   chmod +x kubectl
+   sudo mv kubectl /usr/local/bin/
+   ```
+3. Verify installation:
+
+   ```bash
+   kubectl version --client
+   ```
+
+---
+
+#### **Step 4: Start Minikube**
+
+1. Start Minikube using Docker as the driver:
+
+   ```bash
+   minikube start --driver=docker
+   ```
+2. Verify cluster status:
+
+   ```bash
+   minikube status
+   ```
+
+---
+
+#### **Step 5: Create the HTML Application**
+
+Create a simple web page and Dockerfile.
+
+```bash
+mkdir html-k8s && cd html-k8s
+```
+
+**index.html**
+
+```html
+<!DOCTYPE html>
+<html>
+<head><title>K8s HTML Page</title></head>
+<body>
+<h1>Hello from Kubernetes on Linux!</h1>
+<p>Served by Nginx inside a container.</p>
+</body>
+</html>
+```
+
+**Dockerfile**
+
+```Dockerfile
+FROM nginx:alpine
+COPY index.html /usr/share/nginx/html/index.html
+```
+
+---
+
+#### **Step 6: Build Docker Image Inside Minikube**
+
+1. Configure shell to use Minikube’s Docker environment:
+
+   ```bash
+   eval $(minikube docker-env)
+   ```
+2. Build the Docker image:
+
+   ```bash
+   docker build -t html-k8s-page:v1 .
+   ```
+
+---
+
+#### **Step 7: Create Kubernetes Manifests**
+
+**deployment.yaml**
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: html-page
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: html-page
+  template:
+    metadata:
+      labels:
+        app: html-page
+    spec:
+      containers:
+      - name: nginx
+        image: html-k8s-page:v1
+        ports:
+        - containerPort: 80
+```
+
+**service.yaml**
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: html-page-service
+spec:
+  selector:
+    app: html-page
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: NodePort
+```
+
+---
+
+#### **Step 8: Deploy the Application**
+
+1. Apply manifests:
+
+   ```bash
+   kubectl apply -f deployment.yaml
+   kubectl apply -f service.yaml
+   ```
+2. Verify the status of pods and services:
+
+   ```bash
+   kubectl get pods
+   kubectl get svc
+   kubectl get svc html-page-service
+   ```
+
+---
+
+#### **Step 9: Access the Application**
+
+1. Use Minikube to open the service:
+
+   ```bash
+   minikube service html-page-service
+   ```
+
+   This opens the application in your default browser.
+
+2. Alternatively, find the service URL manually:
+
+   ```bash
+   minikube ip
+   ```
+
+   Then open in browser:
+   `http://<minikube-ip>:<node-port>`
+
+---
+
+### **Result:**
+
+A containerized HTML web application was successfully built, deployed, and accessed on a **Kubernetes cluster** using **Minikube**. The deployment automatically managed multiple replicas, and the service exposed the application externally using a NodePort.
+
+---
+
+### **Conclusion:**
+
+This experiment demonstrated deploying a **containerized web application on Kubernetes**.
+Using **Minikube** (local cluster) and the **Docker driver**, the container was built, deployed, and scaled effectively.
+It reinforced understanding of **Kubernetes concepts** like:
+
+* **Pods** – smallest deployable units
+* **Deployments** – for managing replicas and updates
+* **Services** – for networking and external access
+
+Kubernetes successfully automated orchestration, scaling, and load balancing for the containerized app.
+
+---
+
