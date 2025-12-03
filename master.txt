@@ -1,0 +1,327 @@
+Below is a **complete, clean, exam-ready and production-ready document** that shows **exact steps to set up Jenkins Master–Slave (Agent) architecture**.
+You can directly **print it**, **submit it**, or **use it for lab execution**.
+
+I have written it in **simple English**, **step-by-step**, with **commands**, **explanations**, **troubleshooting**, and **diagram**.
+
+If you want, I can also generate a **PDF** with this document.
+
+---
+
+# ✅ **Jenkins Master–Slave (Agent) Setup – Complete Execution Document**
+
+---
+
+# **1. Aim**
+
+To configure Jenkins Master–Slave (Agent) architecture and run distributed builds by connecting a remote machine as a Jenkins Slave (Agent) using SSH.
+
+---
+
+# **2. Overview**
+
+Jenkins supports distributed builds using a **Master–Agent architecture**:
+
+### **Jenkins Master**
+
+* Runs Jenkins web UI.
+* Schedules jobs.
+* Assigns tasks to agents.
+* Stores build history & configurations.
+
+### **Jenkins Slave / Agent**
+
+* A separate machine connected to the master.
+* Executes build jobs sent by the master.
+* Can be Linux/Windows/Mac.
+* Allows parallel builds and scalability.
+
+---
+
+# **3. Environment Used**
+
+| Component  | Role                   | Example              |
+| ---------- | ---------------------- | -------------------- |
+| Machine 1  | Jenkins Master         | IP: `your-master-ip` |
+| Machine 2  | Jenkins Slave (Ubuntu) | IP: `172.26.146.228` |
+| Connection | SSH                    | Port 22              |
+
+---
+
+# **4. Prerequisites**
+
+### ✔ Jenkins installed on Master
+
+### ✔ Java installed on Slave
+
+```
+java -version
+```
+
+### ✔ SSH enabled on Slave
+
+```
+sudo apt install openssh-server -y
+sudo service ssh start
+```
+
+---
+
+# **5. Steps to Configure Jenkins Master–Slave**
+
+---
+
+## **STEP 1: Check Slave Machine Network & SSH**
+
+### 1.1 Check IP of slave
+
+```
+ip addr
+```
+
+Example output:
+
+```
+inet 172.26.146.228/20
+```
+
+### 1.2 Check SSH connection from master
+
+```
+ssh jenkins@172.26.146.228
+```
+
+If this works → Master can connect.
+
+If not:
+
+```
+sudo apt install openssh-server -y
+sudo service ssh start
+```
+
+---
+
+## **STEP 2: Create Jenkins User on Slave**
+
+Run on the **slave machine**:
+
+```
+sudo adduser jenkins
+sudo usermod -aG sudo jenkins
+```
+
+Check:
+
+```
+sudo su - jenkins
+```
+
+---
+
+## **STEP 3: Create Agent Directory with Permissions**
+
+**Method 1 (recommended):**
+
+```
+sudo mkdir -p /home/jenkins/agent
+sudo chown -R jenkins:jenkins /home/jenkins
+```
+
+OR (if Jenkins home is `/var/lib/jenkins`):
+
+```
+sudo mkdir -p /var/lib/jenkins/agent
+sudo chown -R jenkins:jenkins /var/lib/jenkins
+```
+
+---
+
+## **STEP 4: Add Credentials in Jenkins (Master)**
+
+### 4.1 Go to:
+
+```
+Manage Jenkins → Credentials → Global → Add Credentials
+```
+
+### 4.2 Choose:
+
+```
+Kind: Username with password
+Username: jenkins
+Password: <password you created>
+ID: slave-login
+Description: Linux Slave SSH Login
+```
+
+Click **Save**.
+
+---
+
+## **STEP 5: Add New Slave Node in Jenkins**
+
+### 5.1 Navigate:
+
+```
+Manage Jenkins → Nodes → New Node
+```
+
+### 5.2 Fill details:
+
+* Node name: `linux-slave`
+* Type: **Permanent Agent**
+
+### 5.3 Configure:
+
+| Field                     | Value                               |
+| ------------------------- | ----------------------------------- |
+| **Remote root directory** | `/home/jenkins/agent`               |
+| **Labels**                | `linux-slave`                       |
+| **Usage**                 | Only build jobs matching this label |
+| **Launch method**         | Launch agent via SSH                |
+| **Host**                  | `172.26.146.228`                    |
+| **Credentials**           | `slave-login`                       |
+
+Save.
+
+---
+
+## **STEP 6: Verify Connection**
+
+Jenkins should show:
+
+```
+SSH Connection successful
+SFTP client started
+remoting.jar transferred
+Agent successfully connected
+```
+
+If you see:
+
+```
+Permission denied
+```
+
+Run:
+
+```
+sudo chown -R jenkins:jenkins /home/jenkins
+```
+
+Then **Reconnect**.
+
+---
+
+## **STEP 7: Create Job to Run on Slave**
+
+### 7.1 On Jenkins Dashboard → “New Item”
+
+* Name: `test-slave-build`
+* Type: Freestyle Project
+
+### 7.2 Under “General”
+
+Check:
+
+```
+Restrict where this project can be run
+```
+
+Enter label:
+
+```
+linux-slave
+```
+
+### 7.3 Under Build → Execute Shell
+
+Add:
+
+```
+echo "Hello from Jenkins Slave!"
+hostname
+```
+
+Save.
+
+---
+
+## **STEP 8: Run the Job**
+
+1. Click **Build Now**
+2. Open **Console Output**
+
+You should see:
+
+```
+Hello from Jenkins Slave!
+<slave-machine-hostname>
+```
+
+---
+
+# **9. Expected Output**
+
+* SSH authentication successful
+* Slave directory created
+* `remoting.jar` copied
+* Slave status = **Connected**
+* Job executed on agent
+* Hostname printed from slave
+
+---
+
+# **10. Troubleshooting**
+
+### ❌ Error: "Connect timed out"
+
+✔ Wrong IP
+✔ Slave is OFF
+✔ SSH service not running
+✔ Different network
+
+### ❌ Error: "Permission denied (mkdir)"
+
+✔ Run:
+
+```
+sudo chown -R jenkins:jenkins /home/jenkins
+```
+
+### ❌ Error: "Authentication failed"
+
+✔ Wrong username/password
+✔ Wrong credentials selected in Jenkins
+
+---
+
+# **11. Master–Slave Architecture Diagram (Text-based)**
+
+```
+        +-----------------------+
+        |     Jenkins Master    |
+        |  - Web UI             |
+        |  - Schedules jobs     |
+        |  - Sends tasks        |
+        +-----------+-----------+
+                    |
+                    | SSH Connection (Port 22)
+                    |
+        +-----------v-----------+
+        |    Jenkins Slave      |
+        |  - Executes builds    |
+        |  - Runs commands      |
+        |  - Returns output     |
+        +-----------------------+
+```
+
+---
+
+# **12. Conclusion**
+
+We successfully configured Jenkins Master–Slave architecture using SSH.
+The slave machine was authenticated, connected, and executed distributed build jobs as controlled by the Jenkins master.
+This setup improves build performance, scalability, and parallel execution.
+
+---

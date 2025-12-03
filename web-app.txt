@@ -1,0 +1,126 @@
+### **Description:**
+
+**Docker** is a platform that allows developers to package an application along with all its dependencies into a **single lightweight container**.
+This ensures the application runs **consistently across different environments** (development, testing, and production).
+
+A **Dockerfile** is a text file containing **step-by-step instructions** that define how to build a Docker image.
+Each instruction in the Dockerfile creates a **layer** in the image.
+
+Common Dockerfile instructions include:
+
+* **FROM** → Specifies the base image.
+* **MAINTAINER / LABEL** → Defines author or metadata.
+* **RUN** → Executes commands inside the image during build.
+* **COPY / ADD** → Copies files from the host into the image.
+* **WORKDIR** → Sets the working directory for following commands.
+* **EXPOSE** → Specifies the port on which the container listens.
+* **CMD / ENTRYPOINT** → Defines the default command when the container starts.
+
+---
+#### **Step 1: Install and Verify Docker**
+
+```bash
+sudo apt update
+sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker
+docker --version
+```
+
+---
+
+#### **Step 2: Create a Sample Web Application**
+
+Create a simple HTML file to serve using Nginx or Apache.
+
+```bash
+mkdir docker-webapp
+cd docker-webapp
+```
+
+Create `index.html`:
+
+```bash
+echo "<h1>Hello from Docker Container!</h1>" > index.html
+```
+
+---
+
+#### **Step 3: Create a Dockerfile**
+
+Inside the same folder (`docker-webapp/`), create a file named `Dockerfile`:
+
+```bash
+nano Dockerfile
+```
+
+Add the following content:
+
+```Dockerfile
+# Use an official Nginx image as base
+FROM nginx:latest
+
+# Copy custom HTML file into the container
+COPY index.html /usr/share/nginx/html/index.html
+
+# Expose port 80 to access web page
+EXPOSE 80
+
+# Command to run Nginx in foreground
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+---
+
+#### **Step 4: Build the Docker Image**
+
+Run the build command inside the same directory:
+
+```bash
+docker build -t mywebapp .
+```
+
+✅ This creates an image named **mywebapp**.
+
+---
+
+#### **Step 5: Verify the Image**
+
+```bash
+docker images
+```
+
+---
+
+#### **Step 6: Run the Container**
+
+Run your container using the built image:
+
+```bash
+docker run -d -p 8080:80 mywebapp
+```
+
+✅ This starts a container and maps **host port 8080 → container port 80**.
+
+---
+
+#### **Step 7: Verify Application**
+
+Open your web browser and go to:
+🔗 `http://localhost:8080`
+
+You should see:
+
+> **Hello from Docker Container!**
+
+---
+
+#### **Step 8: Check and Manage Containers**
+
+```bash
+docker ps          # List running containers
+docker stop <id>   # Stop container
+docker rm <id>     # Remove container
+```
+
+---

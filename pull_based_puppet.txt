@@ -1,0 +1,138 @@
+### **Aim:**
+
+To install and configure a **pull-based Software Configuration Management and provisioning tool using Puppet**.
+
+---
+
+### **Description:**
+
+**Puppet** is an open-source configuration management tool that automates the provisioning, configuration, and management of systems.
+In a **pull-based setup**, Puppet Agents periodically request configuration catalogs from the Puppet Master (Server) and apply them to maintain consistent system states.
+
+This experiment demonstrates:
+
+* Installation of **Puppet Server (Master)** and **Puppet Agent (Client)**.
+* Configuration of communication between them.
+* Verification of successful **agent–master interaction**.
+
+Puppet ensures system integrity by enforcing desired configurations and automatically correcting any drift from the defined state, making it essential for large-scale IT infrastructure management.
+
+---
+
+### **Procedure:**
+
+#### **Step 1: Install Puppet Repository**
+
+1. Download the Puppet 8 repository package:
+
+   ```bash
+   wget https://apt.puppet.com/puppet8-release-focal.deb
+   ```
+2. Install the repository package:
+
+   ```bash
+   sudo dpkg -i puppet8-release-focal.deb
+   ```
+3. Update package lists:
+
+   ```bash
+   sudo apt update
+   ```
+
+> This makes the latest Puppet Server and Agent packages available for installation.
+
+---
+
+#### **Step 2: Install Puppet Server**
+
+Install the Puppet Server package:
+
+```bash
+sudo apt install puppetserver -y
+```
+
+> The Puppet Server acts as the **Master Node**, responsible for managing configurations and catalogs for multiple agents.
+
+---
+
+#### **Step 3: Start and Enable Puppet Server**
+
+```bash
+sudo systemctl start puppetserver
+sudo systemctl enable puppetserver
+```
+
+> This activates the Puppet Server and ensures it starts automatically on boot.
+
+---
+
+#### **Step 4: Configure Puppet Agent**
+
+1. Install the Puppet Agent:
+
+   ```bash
+   sudo apt install puppet-agent -y
+   ```
+2. Edit the configuration file `/etc/puppetlabs/puppet/puppet.conf`:
+
+   ```bash
+   sudo nano /etc/puppetlabs/puppet/puppet.conf
+   ```
+3. Add the following under the `[agent]` section:
+
+   ```
+   [agent]
+   server = puppetmaster.example.com
+   environment = production
+   runinterval = 30m
+
+   certname = puppet.localdomain
+   server = puppet.localdomain
+   environment = production
+   runinterval = 1h
+   ```
+
+> Replace `puppetmaster.example.com` with your Puppet Master’s hostname or IP.
+
+---
+
+#### **Step 5: Start and Enable Puppet Agent**
+
+```bash
+sudo systemctl start puppet
+sudo systemctl enable puppet
+```
+
+> The agent will now periodically contact the Puppet Master to pull and apply configurations.
+
+---
+
+#### **Step 6: Test Puppet Agent Communication**
+
+Manually trigger an agent run:
+
+```bash
+sudo /opt/puppetlabs/bin/puppet agent --test
+```
+
+Expected Output:
+
+* Agent contacts the Puppet Master.
+* Retrieves and applies the configuration catalog.
+* Displays “**Applied catalog in X seconds**” message upon success.
+
+> This confirms proper communication between Puppet Master and Agent.
+
+---
+
+### **Conclusion:**
+
+In this experiment, a **pull-based Software Configuration Management** setup was successfully implemented using **Puppet**.
+The **Puppet Server (Master)** and **Puppet Agent (Client)** were installed, configured, and connected successfully.
+The agent successfully pulled configuration data from the master and applied it locally, confirming proper functionality.
+
+This demonstrates Puppet’s power in **automating configuration management** and ensuring **system consistency** across large-scale infrastructures.
+
+---
+
+Would you like me to format this as a **Word/PDF document** (with proper headings, bold fonts, and alignment for printing or submission)?

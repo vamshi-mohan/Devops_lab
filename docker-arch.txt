@@ -1,0 +1,39 @@
+Description: This experiment demonstrates the fundamental working of Docker, focusing on its architecture 
+and container life cycle. Docker uses a client–server model consisting of the Docker client, Docker daemon, 
+and Docker objects like images and containers. The Docker client interacts with the daemon to build, run, and 
+manage containers. In this experiment, Docker is installed and verified, followed by executing essential 
+Docker commands to pull images, create and run containers, inspect their status, and manage their life cycle. 
+A sample web application (like Nginx) is deployed inside a container to observe container creation, execution, 
+stopping, restarting, and removal. Through this process, the roles of Docker components and the transition of 
+containers across various states are clearly understood. 
+
+
+Commands controlling transitions:
+docker run      # Create and start a container
+docker stop     # Stop a running container
+docker start    # Restart a stopped container
+docker rm       # Remove a container
+
+
+sudo apt update
+sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker
+docker --version
+
+docker images
+
+docker pull nginx
+
+
+run docker:
+docker run -d -p 8080:80 nginx
+
+containers: 
+docker ps
+docker ps -a
+
+Manage the Container Life Cycle:
+docker stop <container_id>
+docker start <container_id>
+docker rm <container_id>

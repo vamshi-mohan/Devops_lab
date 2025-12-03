@@ -1,0 +1,156 @@
+### **Aim:**
+
+To learn **Software Configuration Management and provisioning** using **Puppet blocks** — specifically **Manifests, Modules, Classes, and Functions**.
+
+---
+
+### **Description:**
+
+Puppet uses **declarative code** to define and automate system configurations.
+Its main building blocks are:
+
+1. **Manifest:**
+
+   * Files with the `.pp` extension containing Puppet code.
+   * Define system resources such as **packages, files, and services**.
+
+2. **Module:**
+
+   * A structured directory containing **manifests, files, templates, and functions**.
+   * Used to organize and **reuse configurations** across systems.
+
+3. **Class:**
+
+   * Groups related resources into a single **logical unit**.
+   * Enables modular and reusable code organization.
+
+4. **Function:**
+
+   * Performs specific tasks such as calculations, data retrieval, or message display.
+   * Can be **built-in or custom-defined**.
+
+---
+
+### **Procedure:**
+
+#### **Step 1: Ensure Puppet Agent is Active**
+
+Before proceeding, verify that the **Puppet Agent** service is running:
+
+```bash
+sudo systemctl status puppet
+```
+
+---
+
+#### **Step 2: Create Module Structure**
+
+Create a module directory with all necessary subfolders:
+
+```bash
+sudo mkdir -p /etc/puppetlabs/code/environments/production/modules/sample_module/{manifests,files,templates,functions}
+```
+
+> This directory structure prepares the environment for defining reusable configurations.
+
+---
+
+#### **Step 3: Create Class Manifest**
+
+Open and edit the class manifest:
+
+```bash
+sudo nano /etc/puppetlabs/code/environments/production/modules/sample_module/manifests/init.pp
+```
+
+Add the following content:
+
+```puppet
+class sample_module {
+  # Install a package
+  package { 'cowsay':
+    ensure => installed,
+  }
+
+  # Create a file
+  file { '/tmp/hello.txt':
+    ensure  => file,
+    content => "Hello from Puppet!",
+  }
+
+  # Ensure a service is running
+  service { 'ssh':
+    ensure => running,
+  }
+}
+```
+
+> This manifest defines installation of a package, creation of a file, and verification of a running service.
+
+---
+
+#### **Step 4: Create Custom Function**
+
+Create a new Puppet function file:
+
+```bash
+sudo nano /etc/puppetlabs/code/environments/production/modules/sample_module/functions/custom_message.pp
+```
+
+Add this content:
+
+```puppet
+function sample_module::custom_message(String $msg) {
+  notice("Custom Message: ${msg}")
+}
+```
+
+> This defines a **custom function** that prints messages to the console.
+
+---
+
+#### **Step 5: Apply the Module**
+
+Run the module to apply the defined configurations:
+
+```bash
+sudo /opt/puppetlabs/bin/puppet apply -e "include sample_module"
+```
+
+> Puppet will now:
+>
+> * Install the `cowsay` package
+> * Create the file `/tmp/hello.txt`
+> * Ensure the `ssh` service is running
+
+---
+
+#### **Step 6: Verify Changes**
+
+Check whether the configurations were applied successfully:
+
+```bash
+# Verify package installation
+dpkg -l | grep cowsay
+
+# Verify file creation
+cat /tmp/hello.txt
+
+# Verify service status
+systemctl status ssh
+```
+
+> If all verifications succeed, Puppet has successfully enforced the defined system state.
+
+---
+
+### **Conclusion:**
+
+This experiment successfully demonstrates the **use of Puppet’s building blocks** — **Manifests, Modules, Classes, and Functions** — for **Software Configuration Management and provisioning**.
+By structuring configurations modularly, Puppet ensures **reusability, scalability, and automation**.
+The Puppet Agent applied the configuration, **installing packages, creating files, and managing services** automatically.
+This validates Puppet’s **pull-based SCM approach**, where agents continuously enforce the system’s **desired state** as defined in manifests.
+
+---
+
+Would you like me to generate this as a **formatted Word or PDF document** (with consistent indentation, page headers, and proper spacing for lab record submission)?

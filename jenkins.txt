@@ -1,0 +1,355 @@
+Below is a **simple, clear, step-by-step guide** to help you understand **Continuous Integration (CI)** by **installing, configuring, and setting up Jenkins** on a **Linux system**.
+
+This guide assumes **Ubuntu/Debian**, but steps are similar for CentOS/RHEL.
+
+---
+
+# ✅ **What is Jenkins? (Simple Explanation)**
+
+Jenkins is an **automation server** used for:
+
+* Continuous Integration (CI)
+* Continuous Delivery (CD)
+* Automating build, test, and deployment processes
+
+It helps developers automatically build and test code whenever they push changes.
+
+---
+
+# 🟢 **1. Install Jenkins on Linux (Ubuntu/Debian)**
+
+### **Step 1: Update packages**
+
+```
+sudo apt update
+```
+
+---
+
+### **Step 2: Install Java (required for Jenkins)**
+
+Jenkins runs on Java.
+
+```
+sudo apt install openjdk-11-jdk -y
+```
+
+Check version:
+
+```
+java -version
+```
+
+---
+
+### **Step 3: Add Jenkins repository**
+
+```
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo tee \
+  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+```
+
+Add Jenkins repository file:
+
+```
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+```
+
+---
+
+### **Step 4: Install Jenkins**
+
+```
+sudo apt update
+sudo apt install jenkins -y
+```
+
+---
+
+### **Step 5: Start and Enable Jenkins**
+
+```
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+```
+
+Check status:
+
+```
+systemctl status jenkins
+```
+
+Jenkins is now running 🎉
+
+---
+
+# 🟢 **2. Access Jenkins Web Interface**
+
+Open your browser and visit:
+
+```
+http://your-server-ip:8080
+```
+
+If using local machine:
+
+```
+http://localhost:8080
+```
+
+You will see the Jenkins unlock screen.
+
+---
+
+# 🟢 **3. Get the Initial Admin Password**
+
+Run:
+
+```
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+```
+
+Copy the password and paste into the Jenkins UI.
+
+---
+
+# 🟢 **4. Install Suggested Plugins**
+
+On first setup:
+
+* Click **Install Suggested Plugins**
+* Wait for installation to complete
+
+---
+
+# 🟢 **5. Create Jenkins Admin User**
+
+Enter:
+
+* Username
+* Password
+* Full name
+* Email
+
+Click **Save and Continue**.
+
+Jenkins setup is complete 👏
+
+---
+
+# 🟢 **6. Create Your First Build Job (Continuous Integration Demo)**
+
+### **Step 1: Go to Jenkins Dashboard**
+
+Click **New Item**
+
+### **Step 2: Enter Job Name**
+
+Example: **MyFirstBuild**
+
+Choose:
+
+* **Freestyle project**
+  Click **OK**
+
+---
+
+# 🟢 **7. Configure the Build Job**
+
+Inside job configuration:
+
+### **1. Source Code Management**
+
+If using Git:
+
+* Select **Git**
+* Add your repository URL
+  Example:
+
+  ```
+  https://github.com/your-username/yourrepo.git
+  ```
+
+### **2. Build Trigger (Enable CI)**
+
+To build automatically when code is pushed:
+
+✔️ Select **Poll SCM**
+Enter schedule:
+
+```
+* * * * *
+```
+
+(This checks every minute)
+
+OR (better option):
+
+✔️ Use **GitHub Webhook** (Not required for basic demo)
+
+---
+
+### **3. Configure Build Step**
+
+Scroll to **Build** → click **Add build step**
+
+Choose:
+
+**Execute shell**
+
+Add commands, for example:
+
+```
+echo "Building the project..."
+echo "This is my first Jenkins CI job!"
+```
+
+Or real build commands like:
+
+```
+npm install
+npm test
+```
+
+---
+
+### **4. Save the Job**
+
+Click **Save**
+
+---
+
+# 🟢 **8. Run the Build Job**
+
+Click **Build Now** (left sidebar)
+
+You will see:
+
+🔵 #1 (build number)
+Click it → Console Output
+
+You should see:
+
+```
+Building the project...
+This is my first Jenkins CI job!
+Finished: SUCCESS
+```
+
+Congratulations!
+You have successfully created your first **Continuous Integration Pipeline** with Jenkins 🎉
+----
+
+
+You are getting this error because **Ubuntu 24.04 (Noble)** uses a newer security system, and Jenkins has changed its repository keys recently.
+The **old installation commands don't work anymore**.
+
+Don’t worry — I’ll give you the **correct and updated steps** to fix the GPG key error and install Jenkins properly.
+
+---
+
+# ✅ **Fix: Correct Jenkins Installation Steps for Ubuntu 24.04 (Noble)**
+
+## 🔵 **Step 1: Remove the old Jenkins repo file**
+
+Run this:
+
+```
+sudo rm /etc/apt/sources.list.d/jenkins.list
+```
+
+---
+
+## 🔵 **Step 2: Add the NEW Jenkins key**
+
+Run these updated commands (official):
+
+```
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | \
+  sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+```
+
+---
+
+## 🔵 **Step 3: Add the NEW Jenkins repository**
+
+Run this:
+
+```
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+https://pkg.jenkins.io/debian-stable binary/" | \
+sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+```
+
+---
+
+## 🔵 **Step 4: Update package list**
+
+```
+sudo apt update
+```
+
+Now the GPG error should be gone.
+
+---
+
+## 🔵 **Step 5: Install Java (required for Jenkins)**
+
+```
+sudo apt install openjdk-17-jdk -y
+```
+
+Check:
+
+```
+java -version
+```
+
+---
+
+## 🔵 **Step 6: Install Jenkins**
+
+Now run:
+
+```
+sudo apt install jenkins -y
+```
+
+This time it will work ✔️
+
+---
+
+## 🔵 **Step 7: Start Jenkins**
+
+```
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+```
+
+Check status:
+
+```
+systemctl status jenkins
+```
+
+---
+
+## 🔵 **Step 8: Access Jenkins UI**
+
+Open your browser:
+
+```
+http://localhost:8080
+```
+
+Get initial password:
+
+```
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+```
+
+---
+
+
